@@ -157,7 +157,7 @@ local function constructor(): quill
 		run_chapter_lifecycle(chapter_list, "init")
 		run_chapter_lifecycle(chapter_list, "start")
 
-		print(`[quill] Loaded {#chapter_list} chapters.`)
+		print(`[quill] Loaded {#chapter_list} {(#chapter_list == 1 and "chapter" or "chapters")}.`)
 	end
 
 	return self
