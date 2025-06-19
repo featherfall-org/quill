@@ -43,27 +43,31 @@ local function constructor(): quill
 			return self
 		end
 
+		local chapterName = mod.Name
 		local chapter: chapter = require(mod) :: any
-		chapter.identifier = mod.Name
+		chapter.identifier = chapter.identifier or chapterName
 		chapter.priority = chapter.priority or 1
 
-		assert(not chapter.init or typeof(chapter.init) == "function", `Chapter {mod.Name} init must be a function`)
-		assert(not chapter.start or typeof(chapter.start) == "function", `Chapter {mod.Name} start must be a function`)
-		assert(
-			not chapter.destroy or typeof(chapter.destroy) == "function",
-			`Chapter {mod.Name} destroy must be a function`
-		)
-		assert(typeof(chapter.priority) == "number", `Chapter {mod.Name} priority must be a number`)
+		local init, start, destroy = chapter.init, chapter.start, chapter.destroy
 
-		self._chapters[mod.Name] = chapter
+		assert(not init or typeof(init) == "function", `Chapter {chapterName} init must be a function`)
+		assert(not start or typeof(start) == "function", `Chapter {chapterName} start must be a function`)
+		assert(
+			not destroy or typeof(destroy) == "function",
+			`Chapter {chapterName} destroy must be a function`
+		)
+		assert(typeof(chapter.priority) == "number", `Chapter {chapterName} priority must be a number`)
+
+		self._chapters[chapterName] = chapter
 		return self
 	end
 
 	function self:register_chapters(container: Folder): quill
-		for _, child in container:GetChildren() do
-			if child:IsA("ModuleScript") then
-				self:register_chapter(child)
+		for _, child in container:GetDescendants() do
+			if not child:IsA("ModuleScript") then
+				continue
 			end
+			self:register_chapter(child)
 		end
 		return self
 	end
@@ -74,12 +78,14 @@ local function constructor(): quill
 		end)
 		for _, chapter in chapters do
 			local fn = chapter[lifecycle_name]
-			if fn then
-				if lifecycle_name == "start" then
-					task.spawn(fn, chapter)
-				else
-					fn(chapter)
-				end
+			if not fn then
+				continue
+			end
+			
+			if lifecycle_name == "start" then
+				task.spawn(fn, chapter)
+			else
+				fn(chapter)
 			end
 		end
 	end
@@ -118,7 +124,7 @@ local function constructor(): quill
 			if char and char.destroy then
 				local ok, err = pcall(char.destroy, char)
 				if not ok then
-					warn(`[quill] Error destroying character {definition.tag}: {err}`)
+					warn(`[Quill]: Error destroying character {definition.tag}: {err}`)
 				end
 			end
 			self._characters[definition.tag][instance] = nil
@@ -135,14 +141,16 @@ local function constructor(): quill
 	end
 
 	function self:register_characters(container: Folder): quill
-		for _, child in container:GetChildren() do
-			if child:IsA("ModuleScript") then
-				local success, char: character = pcall(require, child)
-				if success and char and char.tag then
-					self:register_character(char)
-				else
-					warn(`[quill] Failed to load character module '{child.Name}'`)
-				end
+		for _, child in container:GetDescendants() do
+			if not child:IsA("ModuleScript") then
+				continue
+			end
+			
+			local success, char: character = pcall(require, child)
+			if success and char and char.tag then
+				self:register_character(char)
+			else
+				warn(`[Quill]: Failed to load character module '{child.Name}'`)
 			end
 		end
 		return self
@@ -157,7 +165,7 @@ local function constructor(): quill
 		run_chapter_lifecycle(chapter_list, "init")
 		run_chapter_lifecycle(chapter_list, "start")
 
-		print(`[quill] Loaded {#chapter_list} {(#chapter_list == 1 and "chapter" or "chapters")}.`)
+		print(`[Quill]: Loaded {#chapter_list} {(#chapter_list == 1 and "chapter" or "chapters")}.`)
 	end
 
 	return self
