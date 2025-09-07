@@ -1,0 +1,66 @@
+// Folder-specific settings
+//
+// For a full list of overridable settings, and general information on folder-specific settings,
+// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
+{
+  "lsp": {
+    "luau-lsp": {
+      "settings": {
+        "luau-lsp": {
+          "completion": {
+            "imports": {
+              "enabled": true,
+              "suggestRequires": true,
+              "stringRequires": {
+                "enabled": true
+              }
+            }
+          }
+        },
+        "definitions": ["./types/zune.d.luau"],
+        "documentation": ["./types/zune.d.json"],
+        "fflags": {
+          "enable_new_solver": true
+        },
+        "binary": {
+          "ignore_system_version": false
+        },
+        "roblox": {
+          "enabled": true
+        }
+      }
+    },
+    "json-language-server": {
+      "settings": {
+        "json": {
+          "schemas": [
+            {
+              "fileMatch": ["*/.luaurc"],
+              "url": "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/refs/heads/main/editors/code/schemas/luaurc.json"
+            },
+            {
+              "fileMatch": ["*.project.json"],
+              "url": "https://raw.githubusercontent.com/rojo-rbx/vscode-rojo/refs/heads/master/schemas/project.template.schema.json"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "file_types": {
+    "Luau": ["lua"],
+    "JSON": [".luaurc"]
+  },
+  "languages": {
+    "Luau": {
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["--respect-ignores", "-"]
+        }
+      },
+      "format_on_save": "on"
+    }
+  },
+  "disable_ai": true
+}

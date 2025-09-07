@@ -1,0 +1,20 @@
+name = "featherfall/quill"
+version = "0.1.0-alpha.0"
+description = "A featherweight framework for Luau"
+authors = ["Featherfall"]
+repository = "https://github.com/featherfall-org/quill"
+license = "MIT"
+private = true
+
+workspace_members = ["out/pesde/*"]
+
+[target]
+environment = "luau"
+
+[indices]
+default = "https://github.com/pesde-pkg/index"
+
+[wally_indices]
+default = "https://github.com/UpliftGames/wally-index"
+
+[dependencies]

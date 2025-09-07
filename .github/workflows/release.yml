@@ -1,0 +1,97 @@
+name: Release Rubine
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+
+      - name: Install Rokit
+        uses: CompeyDev/setup-rokit@v0.1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: |
+          zune run scripts/build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build.rbxm
+
+  release:
+    name: Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+
+      - name: Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Rename Build
+        run: mv build/build.rbxm rubine.rbxm
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Rubine ${{ github.ref_name }}
+          files: |
+            rubine.rbxm
+
+  publish:
+    name: Publish
+    needs: [release]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+
+      - name: Install Rokit
+        uses: CompeyDev/setup-rokit@v0.1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare for Distribution
+        run: |
+          zune run scripts/build
+
+      - name: Wally Login
+        run: wally login --token ${{ secrets.WALLY_AUTH_TOKEN }}
+
+      - name: Wally Publish
+        run: wally publish
+
+      - name: Pesde Login
+        run: pesde auth login --token "${{ secrets.PESDE_AUTH_TOKEN }}"
+
+      - name: Pesde Publish
+        run: pesde publish -y
+
+      - name: Install NPM Packages
+        run: npm install
+
+      - name: Add shims
+        run: zune run scripts/shim
+
+      - name: NPM Publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
