@@ -22,7 +22,7 @@ jobs:
 
       - name: Lint
         run: |
-          selene lib/
+          selene crates/
 
   style:
     name: Styling
@@ -38,7 +38,7 @@ jobs:
 
       - name: Check Code Style
         run: |
-          stylua --check --respect-ignores lib/
+          stylua --check --respect-ignores crates/
 
   test:
     name: Unit Testing
@@ -59,7 +59,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           # zune sends print() output to stderr
-          output=$(zune run tests/unit.luau 2>&1)
+          output=$(zune test tests/unit 2>&1)
           echo "$output"
           if [[ "$output" == *"0 fails"* ]]; then
             echo "Unit Tests Passed"

@@ -13,11 +13,11 @@ local function check(options: { source: string })
         :option("stdio", "inherit")
         :run()
 
-    --Process.new("zune")
-    --    :argument("run")
-    --    :argument("tests/unit.luau")
-    --    :option("stdio", "inherit")
-    --    :run()
+    Process.new("zune")
+        :argument("test")
+        :argument("tests/unit")
+        :option("stdio", "inherit")
+        :run()
 end
 
 return check
