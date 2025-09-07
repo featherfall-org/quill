@@ -1,4 +1,0 @@
-std = "roblox"
-
-[lints]
-shadowing = "allow"
