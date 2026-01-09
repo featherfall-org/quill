@@ -49,7 +49,7 @@ local function build(
     end
 
     if not fs_util.exists(output) then
-        fs.writeDir(output)
+        fs.makeDir(output)
     end
 
     for _, crate in crates do
@@ -74,14 +74,14 @@ local function build(
             parent = output_tree,
             children = {},
         }
-        output_tree.children.wally_package_tree = wally_package_tree
+        output_tree.children.wally_package = wally_package_tree
         local package_tree: alias_resolver.FsDirNode = {
             name = "package",
             kind = "dir",
             parent = wally_package_tree,
             children = {},
         }
-        wally_package_tree.children.package_tree = package_tree
+        wally_package_tree.children.package = package_tree
         package_tree.children = {
             lib = alias_resolver.build_fs_tree(lib_path, package_tree),
             crates = alias_resolver.build_fs_tree(dir, package_tree),
@@ -90,9 +90,10 @@ local function build(
         local output_path = stdpath.join(output, "wally", crate)
         local output_lib_path = stdpath.join(output_path, config.lib)
         if fs_util.exists(output_path) then
-            fs.removeDir(output_path, true)
+            fs.deleteDir(output_path, true)
         end
-        fs.writeDir(output_lib_path, true)
+        fs.makeDir(output_path, true)
+        fs.copy(lib_path, output_lib_path)
 
         local dependencies: { [string]: string } = {}
         if config.dependencies then
@@ -134,7 +135,6 @@ local function build(
             { crates = "wally_package/package/crates", pkg = "wally_package" }
         )
 
-        fs.copy(lib_path, output_lib_path)
         fs_util.traverse(
             output_lib_path,
             function(path, name, metadata, local_path)
@@ -169,7 +169,23 @@ local function build(
                         continue
                     end
 
-                    local resolved = resolve(require_path, local_path)
+                    local resolved_path = resolve(require_path, local_path)
+                    local first_two_chars = string.sub(resolved_path, 1, 2)
+                    local resolved = if first_two_chars == "./"
+                        then string.gsub(resolved_path, "./crates/", "./", 1)
+                        elseif first_two_chars == ".." then string.gsub(
+                            resolved_path,
+                            "../crates/",
+                            "../",
+                            1
+                        )
+                        elseif first_two_chars == "@s" then string.gsub(
+                            resolved_path,
+                            "@self/crates/",
+                            "@self/",
+                            1
+                        )
+                        else resolved_path
                     local resolved_line =
                         string.gsub(line, require_path, resolved)
                     lines[idx] = resolved_line
@@ -182,7 +198,7 @@ local function build(
 
         local manifest: BuiltManifest = {
             package = {
-                name = `{wally_config.scope}/{root_name}/{config.name}`,
+                name = `{wally_config.scope}/{root_name}_{config.name}`,
                 version = config.version,
                 description = config.description,
                 license = root_config.license,
@@ -192,7 +208,7 @@ local function build(
                 repository = root_config.repository,
                 include = {
                     config.lib,
-                    `{config.lib}/**`,
+                    `{config.lib}**`,
                     "LICENSE",
                     "wally.toml",
                     "README.md",

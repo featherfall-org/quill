@@ -72,7 +72,7 @@ local function build(
     end
 
     if not fs_util.exists(output) then
-        fs.writeDir(output)
+        fs.makeDir(output)
     end
 
     for _, crate in crates do
@@ -107,26 +107,21 @@ local function build(
                 stdpath.join(output, "pesde", crate_target, crate)
             local output_lib_path = stdpath.join(output_path, config.lib)
             if fs_util.exists(output_path) then
-                fs.removeDir(output_path, true)
+                fs.deleteDir(output_path, true)
             end
-            fs.writeDir(output_lib_path, true)
+            fs.makeDir(output_path, true)
+            fs.copy(lib_path, output_lib_path)
 
+            local aliases = { crates = "crates" }
             local pkg_path = `{crate_target}_packages`
             if fs_util.exists(pkg_path) then
                 output_tree.children[pkg_path] =
                     alias_resolver.build_fs_tree(pkg_path, output_tree)
+                aliases.pkg = pkg_path
             end
 
-            local sink = zune.io.createBufferSink()
-            printtree(output_tree, sink)
-            print(sink:flush(false))
+            local resolve = alias_resolver.build_resolver(output_tree, aliases)
 
-            local resolve = alias_resolver.build_resolver(
-                output_tree,
-                { crates = "crates", pkg = pkg_path }
-            )
-
-            fs.copy(lib_path, output_lib_path)
             fs_util.traverse(
                 output_lib_path,
                 function(path, name, metadata, local_path)
@@ -160,7 +155,9 @@ local function build(
                             continue
                         end
 
-                        local resolved = resolve(require_path, local_path)
+                        local resolved_path = resolve(require_path, local_path)
+                        local resolved =
+                            string.gsub(resolved_path, "crates", pkg_path, 1)
                         local resolved_line =
                             string.gsub(line, require_path, resolved)
                         lines[idx] = resolved_line
@@ -196,7 +193,7 @@ local function build(
 
                 target = {
                     environment = crate_target,
-                    lib = `{config.lib}/init.luau`,
+                    lib = `{config.lib}init.luau`,
                     build_files = if crate_target == "roblox"
                         then { config.lib }
                         else nil,

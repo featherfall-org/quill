@@ -25,7 +25,7 @@ local function build_fs_tree(path: string, parent: FsDirNode?): FsDirNode
         children = children,
     }
 
-    for _, entry in fs.readDir(path) do
+    for _, entry in fs.entries(path) do
         local child_path = stdpath.join(path, entry.name)
         local child_node: FsNode = if entry.kind == "directory"
             then build_fs_tree(child_path, node)

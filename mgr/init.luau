@@ -53,7 +53,7 @@ cmd_check:add_positional("source", {
 local cmd_link = cli:add_subcommand("link", "Creates a linker file for a crate")
 cmd_link:add_positional("crates", {
     help = `The crates to create a linker for. Available: {available_crates_help}`,
-    default = root_config.crates,
+    default = "all",
     aliases = { "-c" },
 })
 
