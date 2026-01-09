@@ -10,7 +10,7 @@ local root_config = require("./root")
 
 local available_crates = {}
 local available_targets = {}
-for _, entry in fs.readDir(root_config.crates) do
+for _, entry in fs.entries(root_config.crates) do
     if entry.kind ~= "directory" then
         continue
     end

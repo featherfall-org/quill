@@ -16,16 +16,16 @@ local function ensure_dirs(dirs: { string })
         if exists(dir) and is_dir(dir) then
             continue
         end
-        fs.writeDir(dir, true)
+        fs.makeDir(dir, true)
     end
 end
 
 local function remove(path: string, recursive: boolean?)
     if is_dir(path) then
-        fs.removeDir(path, recursive)
+        fs.deleteDir(path, recursive)
         return
     end
-    fs.removeFile(path)
+    fs.deleteFile(path)
 end
 
 local function remove_safe(path: string, recursive: boolean?)
@@ -50,7 +50,7 @@ local function shell_remove(
         end
     end
     table.insert(args, path)
-    process.run("rm", args, { shell = "pwsh" })
+    process.run("rm", args, { shell = "pwsh" } :: any)
 end
 
 local function mime_folders(paths: { string }): () -> ()
@@ -59,13 +59,13 @@ local function mime_folders(paths: { string }): () -> ()
         if is_dir(path) then
             continue
         end
-        fs.writeDir(path)
+        fs.deleteDir(path)
         acting[path] = true
     end
 
     local function cleanup()
         for path in acting do
-            fs.removeDir(path)
+            fs.deleteDir(path)
         end
     end
 
@@ -86,7 +86,7 @@ local function traverse(
 
     local local_name = start_name or stdpath.basename(dir)
 
-    for _, entry in fs.readDir(dir) do
+    for _, entry in fs.entries(dir) do
         local path = stdpath.join(dir, entry.name)
         local child = fs.metadata(path)
         if not child then

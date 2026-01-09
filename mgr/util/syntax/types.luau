@@ -1,9 +1,9 @@
 --[[
-    https://github.com/luau-lang/lute/blob/ab41047266f8058f314d18834812a9061cf162c2/definitions/luau.luau
+    https://github.com/luau-lang/lute/blob/76fa819ee3cf202d979b59c477241c3968fe8b1a/definitions/luau.luau
 
     MIT License
 
-    Copyright (c) 2024 Roblox Corporation
+    Copyright (c) 2024–2025 Roblox Corporation
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -23,6 +23,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 ]]
+
 export type Position = {
     line: number,
     column: number,
@@ -161,25 +162,24 @@ export type AstExprAnonymousFunction = {
     body: AstFunctionBody,
 }
 
-export type AstExprTableItem = | {
-    kind: "list",
-    value: AstExpr,
-    separator: Token<"," | ";">?,
-} | {
-    kind: "record",
-    key: Token<string>,
-    equals: Token<"=">,
-    value: AstExpr,
-    separator: Token<"," | ";">?,
-} | {
-    kind: "general",
-    indexerOpen: Token<"[">,
-    key: AstExpr,
-    indexerClose: Token<"]">,
-    equals: Token<"=">,
-    value: AstExpr,
-    separator: Token<"," | ";">?,
-}
+export type AstExprTableItem =
+    | { kind: "list", value: AstExpr, separator: Token<"," | ";">? }
+    | {
+        kind: "record",
+        key: Token<string>,
+        equals: Token<"=">,
+        value: AstExpr,
+        separator: Token<"," | ";">?,
+    }
+    | {
+        kind: "general",
+        indexerOpen: Token<"[">,
+        key: AstExpr,
+        indexerClose: Token<"]">,
+        equals: Token<"=">,
+        value: AstExpr,
+        separator: Token<"," | ";">?,
+    }
 
 export type AstExprTable = {
     tag: "table",
@@ -491,33 +491,36 @@ export type AstTypeArray = {
     closeBrace: Token<"}">,
 }
 
-export type AstTypeTableItem = {
-    kind: "indexer",
-    access: Token<"read" | "write">?,
-    indexerOpen: Token<"[">,
-    key: AstType,
-    indexerClose: Token<"]">,
-    colon: Token<":">,
-    value: AstType,
-    separator: Token<"," | ";">?,
-} | {
-    kind: "stringproperty",
-    access: Token<"read" | "write">?,
-    indexerOpen: Token<"[">,
-    key: AstTypeSingletonString,
-    indexerClose: Token<"]">,
-    colon: Token<":">,
-    value: AstType,
-    separator: Token<"," | ";">?,
-} | {
-    kind: "property",
-    access: Token<"read" | "write">?,
-    key: AstTypeSingletonString,
-    indexerClose: Token<"]">,
-    colon: Token<":">,
-    value: AstType,
-    separator: Token<"," | ";">?,
-}
+export type AstTypeTableItem =
+    {
+        kind: "indexer",
+        access: Token<"read" | "write">?,
+        indexerOpen: Token<"[">,
+        key: AstType,
+        indexerClose: Token<"]">,
+        colon: Token<":">,
+        value: AstType,
+        separator: Token<"," | ";">?,
+    }
+    | {
+        kind: "stringproperty",
+        access: Token<"read" | "write">?,
+        indexerOpen: Token<"[">,
+        key: AstTypeSingletonString,
+        indexerClose: Token<"]">,
+        colon: Token<":">,
+        value: AstType,
+        separator: Token<"," | ";">?,
+    }
+    | {
+        kind: "property",
+        access: Token<"read" | "write">?,
+        key: AstTypeSingletonString,
+        indexerClose: Token<"]">,
+        colon: Token<":">,
+        value: AstType,
+        separator: Token<"," | ";">?,
+    }
 
 export type AstTypeTable = {
     tag: "table",

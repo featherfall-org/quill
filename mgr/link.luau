@@ -1,10 +1,10 @@
 local fs = zune.fs
 local stdpath = fs.path
 local io = zune.io
+local luau = zune.luau
 local fs_util = require("./util/fs")
 
 local ast_types = require("./util/parser/types")
-local parser = require("./util/parser")
 local printer = require("./util/parser/printer")
 local visitor = require("./util/parser/visitor")
 
@@ -19,7 +19,7 @@ local function link(options: { crate_path: string })
     local linker = io.createBufferSink()
     linker:write("local lib = require(\"@self/lib\")\n")
 
-    local parsed = parser.parsefile(contents)
+    local parsed = luau.parse(contents)
     local link_visitor = visitor.createVisitor()
     link_visitor.visitTypeAlias = function(alias: ast_types.AstStatTypeAlias)
         if not alias.export then
@@ -30,7 +30,7 @@ local function link(options: { crate_path: string })
             tag = "block",
             statements = { alias },
         }
-        local stringified = printer.print(block)
+        local stringified = printer.printBlock(block)
         linker:write(`{stringified}\n`)
 
         return true

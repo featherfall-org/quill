@@ -39,12 +39,16 @@ function Process.create(self: Identity): ProcessChild
     return process.create(self.command, self.args, self.options)
 end
 
-function Process.run(self: Identity, carry_exit: boolean?): ProcessRunResult
+function Process.run<T>(self: Identity, carry_exit: boolean?): ProcessRunResult<T>
     local result = process.run(self.command, self.args, self.options)
     if not result.ok and (carry_exit == nil or carry_exit == true) then
         error(result.code)
     end
     return result
+end
+
+function Process.inherit_stdout(self: Identity): Identity
+    return self:option("stdout", "inherit"):option("stderr", "inherit")
 end
 
 function Process.spawn(self: Identity): thread

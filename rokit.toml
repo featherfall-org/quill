@@ -5,9 +5,9 @@
 
 [tools]
 wally = "upliftgames/wally@0.3.2"
-rojo = "rojo-rbx/rojo@7.5.1"
+rojo = "rojo-rbx/rojo@7.6.1"
 selene = "kampfkarren/selene@0.29.0"
-luau-lsp = "johnnymorganz/luau-lsp@1.53.2"
-stylua = "johnnymorganz/stylua@2.1.0"
-pesde = "pesde-pkg/pesde@0.7.1+registry.0.2.3"
-zune = "Scythe-Technology/zune@0.5.0-dev" # lets fucking go
+luau-lsp = "johnnymorganz/luau-lsp@1.60.0"
+stylua = "johnnymorganz/stylua@2.3.1"
+pesde = "pesde-pkg/pesde@0.7.2+registry.0.2.3"
+zune = "Scythe-Technology/zune@0.5.3"

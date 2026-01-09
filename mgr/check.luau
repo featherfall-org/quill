@@ -5,18 +5,15 @@ local function check(options: { source: string })
         :argument("--respect-ignores")
         :argument("--check")
         :argument(options.source)
-        :option("stdio", "inherit")
+        :inherit_stdout()
         :run()
 
-    Process.new("selene")
-        :argument(options.source)
-        :option("stdio", "inherit")
-        :run()
+    Process.new("selene"):argument(options.source):inherit_stdout():run()
 
     Process.new("zune")
         :argument("test")
         :argument("tests/unit")
-        :option("stdio", "inherit")
+        :inherit_stdout()
         :run()
 end
 
