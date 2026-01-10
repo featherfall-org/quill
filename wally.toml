@@ -1,0 +1,10 @@
+[package]
+name = "featherfall-org/quill"
+version = "0.1.0"
+description = "A featherweight framework for Luau"
+authors = ["Featherfall"]
+repository = "https://github.com/featherfall-org/quill"
+license = "MIT"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+private = true
