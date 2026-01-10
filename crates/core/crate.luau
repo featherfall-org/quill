@@ -3,7 +3,7 @@ local CrateConfig = require("@mgr/specifiers/CrateConfig")
 return CrateConfig {
     name = "core",
     description = "A featherweight framework for Luau",
-    version = "0.1.0-alpha.0",
+    version = "0.1.0-alpha.1",
     lib = "lib/",
 
     targets = {

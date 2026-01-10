@@ -61,3 +61,4 @@ globalTypes.d.luau
 pesde.lock
 wally.lock
 **.tgz
+dev*

@@ -48,13 +48,18 @@ function Quill.with_modules(self: Identity, modules: { ModuleScript }): Identity
 end
 
 local function no_yield<A..., R...>(fn: (A...) -> R..., ...: A...)
-    local packed = { ... }
-    -- selene: allow(empty_loop)
-    for _ in
-        function()
-            fn(table.unpack(packed) :: any)
-        end :: any
-    do
+    local thread = coroutine.create(fn)
+
+    local ok, message = coroutine.resume(thread, ...)
+    if not ok then
+        error(debug.traceback(thread, message), 3)
+    end
+
+    if coroutine.status(thread) ~= "dead" then
+        error(
+            debug.traceback(thread, "Attempted to yield in a noyield call"),
+            2
+        )
     end
 end
 

@@ -163,8 +163,7 @@ local function build(
                 local_path = string.gsub(local_path, "\\", "/")
                 local_path = "wally_package/package/" .. local_path
 
-                local handle = fs.openFile(path, { mode = "rw" })
-                local contents = handle:read()
+                local contents = fs.readFile(path)
                 local lines = string.split(contents, "\n")
                 for idx, line in lines do
                     local require_path =
@@ -206,7 +205,10 @@ local function build(
                         string.gsub(line, require_path, resolved)
                     lines[idx] = resolved_line
                 end
-                handle:writeSync(table.concat(lines, "\n"))
+
+                -- Dumbass windows behavior patch, replace in zune 0.6.0 with handles end-to-end
+                local handle = fs.createFile(path, { truncate = true })
+                handle:write(table.concat(lines, "\n"))
                 handle:sync()
                 handle:close()
             end
@@ -246,7 +248,7 @@ local function build(
         local project_file = {
             name = config.name,
             tree = {
-                path = "lib",
+                ["$path"] = "lib",
             },
         }
 

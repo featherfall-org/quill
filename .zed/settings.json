@@ -12,6 +12,9 @@
     "luau-lsp": {
       "settings": {
         "luau-lsp": {
+          "sourcemap": {
+            "enabled": true,
+          },
           "completion": {
             "imports": {
               "enabled": true,
