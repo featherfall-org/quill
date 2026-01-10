@@ -168,4 +168,6 @@ function Quill.write(self: Identity)
     print(`[🪶] Started {#self.singletons} singletons in {time_took}ms`)
 end
 
-return { new = constructor }
+local quill = table.freeze { new = constructor }
+
+return quill

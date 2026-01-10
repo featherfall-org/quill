@@ -207,10 +207,12 @@ local function traceback_subscriber(event: Event)
     end
 end
 
-return {
+local logger = table.freeze {
     new = constructor,
     set_log_level = set_log_level,
 
     console_subscriber = console_subscriber,
     traceback_subscriber = traceback_subscriber,
 }
+
+return logger

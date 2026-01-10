@@ -114,7 +114,9 @@ local function mod(sorting_method: SortingMethod?): core.Mod
     }
 end
 
-return {
+local rblx_dependencies = table.freeze {
     use = use,
     mod = mod,
 }
+
+return rblx_dependencies

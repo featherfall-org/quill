@@ -64,9 +64,11 @@ local function implement_server_lifecycle(name: string, event: RBXScriptSignal)
     SERVER_LIFECYCLES[name] = event
 end
 
-return {
+local rblx_lifecycles = table.freeze {
     mod = mod,
 
     implement_client_lifecycle = implement_client_lifecycle,
     implement_server_lifecycle = implement_server_lifecycle,
 }
+
+return rblx_lifecycles
