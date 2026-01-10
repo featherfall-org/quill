@@ -70,14 +70,11 @@ local function constructor(
     subscriber: (Event) -> (),
     context: { [string]: any }?
 ): Logger
-    return setmetatable(
-        {
-            _identifier = identifier,
-            _context = context,
-            _subscriber = subscriber,
-        },
-        mt
-    ) :: Logger
+    return setmetatable({
+        _identifier = identifier,
+        _context = context,
+        _subscriber = subscriber,
+    }, mt) :: Logger
 end
 
 --- Sets the global log level, default being trace.\

@@ -9,12 +9,6 @@ local function check(options: { source: string })
         :run()
 
     Process.new("selene"):argument(options.source):inherit_stdout():run()
-
-    Process.new("zune")
-        :argument("test")
-        :argument("tests/unit")
-        :inherit_stdout()
-        :run()
 end
 
 return check

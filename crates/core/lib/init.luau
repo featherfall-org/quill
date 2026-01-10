@@ -58,6 +58,7 @@ end
 
 local function no_yield<A..., R...>(fn: (A...) -> R..., ...: A...)
     local packed = { ... }
+    -- selene: allow(empty_loop)
     for _ in
         function()
             fn(table.unpack(packed) :: any)
