@@ -1,3 +1,4 @@
+--# selene: allow(undefined_variable)
 local rblx_types = require("./rblx_types")
 
 type luau_vector = vector
@@ -66,6 +67,7 @@ export type function ComponentInfo(t: type): type
 
     local props = t:properties()
 
+    -- selene: allow(shadowing)
     local function optionalprop(
         props: { [type]: { read: type?, write: type? } },
         prop: type
@@ -83,6 +85,7 @@ export type function ComponentInfo(t: type): type
         return nil
     end
 
+    -- selene: allow(shadowing)
     local function fetchprop(
         props: { [type]: { read: type?, write: type? } },
         prop: type
@@ -92,7 +95,7 @@ export type function ComponentInfo(t: type): type
         return found :: any
     end
 
-    for key, rw in props do
+    for key in props do
         local name = key:is("singleton") and key:value()
         infoassert(name ~= nil, `Found non singleton key: {key}`)
         infoassert(

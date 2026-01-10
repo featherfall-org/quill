@@ -1,3 +1,4 @@
+--# selene: allow(undefined_variable)
 local CollectionService = game:GetService("CollectionService")
 local constructors = require("@self/constructors")
 local core = require("@crates/core")

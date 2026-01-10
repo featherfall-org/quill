@@ -1,3 +1,4 @@
+--# selene: allow(undefined_variable)
 --[[
     https://github.com/ffrostfall/fluid/blob/d7ddeb064bb3ad1d9628b7f6998d6ddef76cca5b/src/instances/create.luau
 
