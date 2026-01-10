@@ -81,7 +81,8 @@ local function publish(options: {
                 process:argument("--output"):argument("package.tar.gz")
             end
 
-            for _, crate in ordered do
+            for idx = #ordered, 1, -1 do
+                local crate = ordered[idx]
                 local out_dir =
                     stdpath.join(options.output, package_manager, crate)
                 print(
@@ -110,9 +111,15 @@ local function publish(options: {
             Process.new("pesde"):argument("install"):inherit_stdout()
 
         for _, target in options.targets do
-            for _, crate in ordered do
+            for idx = #ordered, 1, -1 do
+                local crate = ordered[idx]
                 local out_dir =
                     stdpath.join(options.output, package_manager, target, crate)
+
+                if fs.stat(out_dir).kind == "none" then
+                    -- Not built, likely because it's not available for this target
+                    continue
+                end
 
                 if target == "roblox" then
                     print(
