@@ -63,6 +63,10 @@ local function publish(options: {
         local crate_dependencies = {}
         if crate_config.workspace_dependencies then
             for dependency in crate_config.workspace_dependencies do
+                if not table.find(options.crates, dependency) then
+                    continue
+                end
+
                 table.insert(crate_dependencies, dependency)
             end
         end
