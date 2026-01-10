@@ -6,7 +6,7 @@ end
 
 type AdjacencyMatrix<T> = { [T]: { T } }
 --- Kahn's algorithm for topological sorting of adjacency matrices
-local function toposort<T>(graph: AdjacencyMatrix<T>): { T }
+local function toposort<T>(graph: AdjacencyMatrix<T>, output: { T }?): { T }
     local in_degree: { [T]: number } = {}
     for node, neighbors in graph do
         in_degree[node] = 0
@@ -26,7 +26,7 @@ local function toposort<T>(graph: AdjacencyMatrix<T>): { T }
         end
     end
 
-    local sorted_order: { T } = {}
+    local sorted_order: { T } = output or {}
     while #queue > 0 do
         local node = table.remove(queue, 1)
         table.insert(sorted_order, node)
@@ -42,8 +42,20 @@ local function toposort<T>(graph: AdjacencyMatrix<T>): { T }
     return sorted_order
 end
 
+local function priority_sort(singletons: { core.Singleton })
+    table.sort(singletons, function(a: Singleton, b: Singleton)
+        if not a.priority then
+            return b.priority == nil
+        end
+        if not b.priority then
+            return true
+        end
+        return a.priority > b.priority
+    end)
+end
+
 type Singleton = core.Singleton
-export type SortingMethod = | "topological"
+export type SortingMethod = | "topological" | "priority"
 local function mod(sorting_method: SortingMethod?): core.Mod
     local dependencies_matrix: AdjacencyMatrix<Singleton> = {}
     local to_inject: { [Singleton]: { [string]: Singleton } } = {}
@@ -65,16 +77,38 @@ local function mod(sorting_method: SortingMethod?): core.Mod
                 continue
             end
 
-            table.insert(dependencies, value.singleton)
+            table.insert(dependencies :: any, value.singleton)
             dependencies_map[name] = value.singleton
         end
         dependencies_matrix[singleton] = dependencies
         to_inject[singleton] = dependencies_map
     end
 
-    local function phase_hook(phase: core.Phase, singletons: { Singleton }) end
+    local function phase_hook(phase: core.Phase, singletons: { Singleton })
+        if phase == "pre_loading" then
+            if sorting_method == "priority" then
+                priority_sort(singletons)
+            elseif sorting_method == "topological" then
+                table.clear(singletons)
+                toposort(dependencies_matrix, singletons)
+            end
+        elseif phase == "post_loading" then
+            if sorting_method ~= "topological" then
+                return
+            end
 
-    return {}
+            for _, singleton in singletons do
+                for name, dependency in to_inject[singleton] do
+                    singleton[name] = dependency
+                end
+            end
+        end
+    end
+
+    return {
+        on_lifecycle = lifecycle_hook,
+        on_phase = phase_hook,
+    }
 end
 
 return {

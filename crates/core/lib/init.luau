@@ -60,7 +60,7 @@ local function no_yield<A..., R...>(fn: (A...) -> R..., ...: A...)
     local packed = { ... }
     for _ in
         function()
-            fn(table.unpack(packed))
+            fn(table.unpack(packed) :: any)
         end :: any
     do
     end
@@ -133,19 +133,10 @@ function Quill.write(self: Identity)
     call_phase_hooks(self.phase_hooks, "pre_loading", {})
     for _, module in self.modules do
         local singleton = (require)(module)
-        table.insert(self.singletons, singleton)
+        table.insert(self.singletons :: any, singleton)
         call_lifecycle_hooks(self.lifecycle_hooks, "loaded", singleton)
     end
 
-    table.sort(self.singletons, function(a: Singleton, b: Singleton)
-        if not a.priority then
-            return b.priority == nil
-        end
-        if not b.priority then
-            return true
-        end
-        return a.priority > b.priority
-    end)
     call_phase_hooks(self.phase_hooks, "post_loading", self.singletons)
 
     call_phase_hooks(self.phase_hooks, "pre_initialization", self.singletons)
