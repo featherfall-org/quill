@@ -25,10 +25,7 @@ export type Logger = {
         level: Level,
         message: string,
         context: { [string]: any }?
-    ) -> Event,
-    --- Subscribes to the logger's events.\
-    --- Loggers may only have one subscriber, and so any consequent subscribers will overwrite their preceding one.
-    subscribe: (self: Logger, subscriber: (Event) -> ()) -> (),
+    ) -> (),
 
     --- Creates a trace event with the specified message.\
     --- Accepts additional context which the logger's context will be merged into.
@@ -106,7 +103,7 @@ function Logger.event(
     message: string,
     context: { [string]: any }?
 )
-    if LOG_LEVEL < LEVELS[level] then
+    if LEVELS[level] < LOG_LEVEL then
         return
     end
 
@@ -131,10 +128,6 @@ function Logger.event(
     if not ok then
         warn(`Error in subscriber: {result}`)
     end
-end
-
-function Logger.subscribe(self: Logger, subscriber: (Event) -> ())
-    self._subscriber = subscriber
 end
 
 function Logger.trace(
@@ -196,7 +189,7 @@ local function traceback_subscriber(event: Event)
 
     if LEVELS[event.level] < 4 then
         print(
-            `{event.logger} - {event.level}} @ {event.timestamp}:\n{event.message}\n{traceback}`
+            `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{traceback}`
         )
     elseif LEVELS[event.level] < 6 then
         warn(

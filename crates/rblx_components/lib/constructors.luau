@@ -1,5 +1,6 @@
 local rblx_types = require("./rblx_types")
 
+type luau_vector = vector
 type rbx_vector2 = Vector2
 type rbx_vector3 = Vector3
 type rbx_udim = UDim
@@ -22,6 +23,8 @@ export type function TypeOfKind(kind: type): type
         return types.number
     elseif singleton == "boolean" then
         return types.boolean
+    elseif singleton == "vector" then
+        return luau_vector
     elseif singleton == "Vector2" then
         return rbx_vector2
     elseif singleton == "Vector3" then
@@ -48,7 +51,7 @@ export type function TypeOfKind(kind: type): type
         return rbx_font
     end
     error(
-        `Unknown attribute type: {singleton}\nExpected string, number, boolean, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
+        `Unknown attribute type: {singleton}\nExpected string, number, boolean, vector, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
     )
 end
 
@@ -179,10 +182,12 @@ export type function ComponentInfo(t: type): type
     return t
 end
 
+-- Luau vectors and Roblox Vector3s are interchangeable, although the types are absolute ass for it, so we define attribute kinds for both.
 export type AttributeKind =
     | "string"
     | "number"
     | "boolean"
+    | "vector"
     | "Vector2"
     | "Vector3"
     | "UDim"
@@ -200,6 +205,8 @@ export type AttributeType =
     | number
     | boolean
     | vector
+    | Vector2
+    | Vector3
     | UDim
     | UDim2
     | BrickColor
@@ -234,6 +241,7 @@ type function CheckKind(kind: type): type
         singleton == "string"
             or singleton == "number"
             or singleton == "boolean"
+            or singleton == "vector"
             or singleton == "Vector2"
             or singleton == "Vector3"
             or singleton == "UDim"
@@ -247,7 +255,7 @@ type function CheckKind(kind: type): type
             or singleton == "Rect"
             or singleton == "Font",
         error(
-            `Unknown attribute type: {singleton}\nExpected string, number, boolean, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
+            `Unknown attribute type: {singleton}\nExpected string, number, boolean, vector, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
         )
     )
     return kind

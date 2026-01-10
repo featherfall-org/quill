@@ -1,16 +1,11 @@
 export type Singleton = {
-    priority: number?,
     init: ((Singleton) -> ())?,
     start: ((Singleton) -> ())?,
     [any]: any,
 }
 
 export type Lifecycle = | "loaded" | "injected" | "initialized" | "started"
-export type LifecycleHook<E... = ()> = (
-    lifecycle: Lifecycle,
-    singleton: Singleton,
-    E...
-) -> ()
+export type LifecycleHook = (lifecycle: Lifecycle, singleton: Singleton) -> ()
 
 export type Phase =
     | "pre_loading"
@@ -19,11 +14,7 @@ export type Phase =
     | "post_initialization"
     | "pre_starting"
     | "post_starting"
-export type PhaseHook<E... = ()> = (
-    phase: Phase,
-    singletons: { Singleton },
-    E...
-) -> ()
+export type PhaseHook = (phase: Phase, singletons: { Singleton }) -> ()
 
 local Quill = {}
 local mt = { __index = Quill }
@@ -108,7 +99,6 @@ function Quill.with_singletons(
     return self
 end
 
--- make this a modinterface
 export type Mod = {
     on_lifecycle: LifecycleHook?,
     on_phase: PhaseHook?,
@@ -142,22 +132,20 @@ function Quill.write(self: Identity)
 
     call_phase_hooks(self.phase_hooks, "pre_initialization", self.singletons)
     for _, singleton in self.singletons do
-        if not singleton.init then
-            continue
+        if singleton.init then
+            no_yield(singleton.init, singleton)
         end
 
-        no_yield(singleton.init, singleton)
         call_lifecycle_hooks(self.lifecycle_hooks, "initialized", singleton)
     end
     call_phase_hooks(self.phase_hooks, "post_initialization", self.singletons)
 
     call_phase_hooks(self.phase_hooks, "pre_starting", self.singletons)
     for _, singleton in self.singletons do
-        if not singleton.start then
-            continue
+        if singleton.start then
+            task.spawn(singleton.start, singleton)
         end
 
-        task.spawn(singleton.start, singleton)
         call_lifecycle_hooks(self.lifecycle_hooks, "started", singleton)
     end
     call_phase_hooks(self.phase_hooks, "post_starting", self.singletons)

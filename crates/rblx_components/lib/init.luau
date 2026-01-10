@@ -1,3 +1,4 @@
+local CollectionService = game:GetService("CollectionService")
 local constructors = require("@self/constructors")
 local core = require("@crates/core")
 local rblx_types = require("@self/rblx_types")
@@ -88,6 +89,7 @@ type CreationDataRepresentation = {
 
 type Component = {
     init: ((Component) -> ())?,
+    destroy: ((Component) -> ())?,
     [any]: any,
 }
 
@@ -112,6 +114,8 @@ local function mod(debug: boolean?): core.Mod
         then
             return
         end
+        meta = (meta :: any).info :: constructors.ComponentInfoRepresentation
+        singleton.info = meta
 
         local component_ctor: (core.Singleton, CreationDataRepresentation) -> Component =
             singleton.new
@@ -191,6 +195,7 @@ local function mod(debug: boolean?): core.Mod
                 if component.init then
                     component:init()
                 end
+                return component :: any
             end
         else
             function setup_component(instance: Instance)
@@ -240,7 +245,37 @@ local function mod(debug: boolean?): core.Mod
                 if component.init then
                     component:init()
                 end
+                return component :: any
             end
+        end
+
+        local dtors = {}
+
+        local function handle_tagged(instance: Instance)
+            local component = (setup_component :: (Instance) -> Component?)(
+                instance
+            )
+            if component and component.destroy then
+                dtors[instance] = function()
+                    component:destroy()
+                end
+            end
+        end
+
+        CollectionService:GetInstanceAddedSignal(meta.tag)
+            :Connect(handle_tagged)
+
+        CollectionService:GetInstanceRemovedSignal(meta.tag)
+            :Connect(function(instance)
+                local dtor = dtors[instance]
+                if dtor then
+                    dtor()
+                    dtors[instance] = nil
+                end
+            end)
+
+        for _, instance in CollectionService:GetTagged(meta.tag) do
+            handle_tagged(instance)
         end
     end
 
