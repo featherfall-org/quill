@@ -3,6 +3,7 @@ export type WorkspaceCrate =
     | "dependencies"
     | "logger"
     | "rblx_components"
+    | "rblx_lifecycles"
 
 export type PesdePackageVariant = {
     name: string,

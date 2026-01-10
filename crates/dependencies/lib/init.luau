@@ -6,7 +6,7 @@ end
 
 type AdjacencyMatrix<T> = { [T]: { T } }
 --- Kahn's algorithm for topological sorting of adjacency matrices
-local function toposort<T>(graph: AdjacencyMatrix<T>, output: { T }?): { T }
+local function toposort<T>(graph: AdjacencyMatrix<T>): { T }
     local in_degree: { [T]: number } = {}
     for node, neighbors in graph do
         in_degree[node] = 0
@@ -26,7 +26,7 @@ local function toposort<T>(graph: AdjacencyMatrix<T>, output: { T }?): { T }
         end
     end
 
-    local sorted_order: { T } = output or {}
+    local sorted_order: { T } = {}
     while #queue > 0 do
         local node = table.remove(queue, 1)
         table.insert(sorted_order, node)
@@ -89,8 +89,11 @@ local function mod(sorting_method: SortingMethod?): core.Mod
             if sorting_method == "priority" then
                 priority_sort(singletons)
             elseif sorting_method == "topological" then
+                local sorted = toposort(dependencies_matrix, singletons)
                 table.clear(singletons)
-                toposort(dependencies_matrix, singletons)
+                for idx = #sorted, 1, -1 do
+                    table.insert(singletons, sorted[idx])
+                end
             end
         elseif phase == "post_loading" then
             if sorting_method ~= "topological" then

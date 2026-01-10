@@ -52,7 +52,7 @@ function Process.inherit_stdout(self: Identity): Identity
 end
 
 function Process.spawn(self: Identity): thread
-    return task.spawn(process.run, self.command, self.args, self.options)
+    return task.spawn(process.run :: any, self.command, self.args, self.options)
 end
 
 return {
