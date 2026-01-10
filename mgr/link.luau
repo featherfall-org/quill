@@ -1,6 +1,7 @@
 local fs = zune.fs
 local stdpath = fs.path
 local io = zune.io
+local Process = require("@mgr/util/Process")
 local fs_util = require("./util/fs")
 
 local ast_types = require("./util/syntax/types")
@@ -13,6 +14,10 @@ local function link(options: { crate_path: string })
     local linker_path = stdpath.join(options.crate_path, "init.luau")
     if not fs_util.exists(module_path) then
         error(`{module_path} doesn't exist.`)
+    end
+
+    if fs.stat(linker_path).kind ~= "none" then
+        fs.deleteFile(linker_path)
     end
 
     local contents = fs.readFile(module_path)
@@ -99,8 +104,10 @@ local function link(options: { crate_path: string })
     visitor.visitBlock(parsed, link_visitor)
 
     linker:write("return lib")
-    fs.writeFile(linker_path, linker:flush())
+    fs.writeFileSync(linker_path, linker:flush())
     linker:close()
+
+    Process.new("stylua"):argument(linker_path):run()
 end
 
 return link
