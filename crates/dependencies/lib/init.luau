@@ -89,7 +89,7 @@ local function mod(sorting_method: SortingMethod?): core.Mod
             if sorting_method == "priority" then
                 priority_sort(singletons)
             elseif sorting_method == "topological" then
-                local sorted = toposort(dependencies_matrix, singletons)
+                local sorted = toposort(dependencies_matrix)
                 table.clear(singletons)
                 for idx = #sorted, 1, -1 do
                     table.insert(singletons, sorted[idx])
