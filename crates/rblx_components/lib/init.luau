@@ -73,10 +73,7 @@ type function creation_data(t: type): type
     end
 
     local is_prop = fetchprop(props, types.singleton("is"))
-    data:setreadproperty(
-        types.singleton("instance"),
-        GetInstance(is_prop:value())
-    )
+    data:setreadproperty(types.singleton("instance"), GetInstance(is_prop))
 
     return data
 end
@@ -291,6 +288,7 @@ local components = table.freeze {
     info = fake_info_ctor,
     attribute = constructors.attribute,
     child = constructors.child,
+    singleton = constructors.singleton,
 }
 
 return components

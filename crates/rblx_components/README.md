@@ -6,7 +6,7 @@ Thanks to an abhorrent amount of used type functions, everything is completely t
 ## Usage
 
 ```luau
-local components = require("@quill/rblx_components")
+local components = require("@pkg/quill_rblx_components")
 
 local Door = {}
 local door_mt = { __index = Door }
@@ -21,13 +21,22 @@ type DoorProperties = {
 export type Door = setmetatable<DoorProperties, typeof(door_mt)>
 
 function Door.init(self: Door)
-    table.insert(self.connections, self.toggle_prompt.Triggered:Connect(function() self:toggle() end))
+    table.insert(
+        self.connections,
+        self.toggle_prompt.Triggered:Connect(function()
+            self:toggle()
+        end)
+    )
 end
 
 function Door.toggle(self: Door)
     local sign = if self.is_open then -1 else 1
     local target_angles = self.turn_rotation * vector.create(sign, sign, sign)
-    self.instance.CFrame *= CFrame.Angles(target_angles.x, target_angles.y, target_angles.z)
+    self.instance.CFrame *= CFrame.Angles(
+        target_angles.x,
+        target_angles.y,
+        target_angles.z
+    )
     self.is_open = not self.is_open
 end
 
@@ -46,8 +55,8 @@ DoorComponent.info = components.info {
     children = {
         toggle_prompt = components.child("ProximityPrompt"), -- Child called `toggle_prompt` on the tagged instance that's a ProximityPrompt
     },
-    is = "Part" -- Any instance tagged with `Door` must be a `Part` to be initialized
-    tag = "Door",
+    is = components.singleton("BasePart"), -- Any instance tagged with `Door` must be a `Part` to be initialized
+    tag = components.singleton("Door"),
 }
 type DoorData = components.CreationData<typeof(DoorComponent.info)>
 
@@ -57,6 +66,7 @@ function DoorComponent.new(self: self, data: DoorData): Door
         turn_rotation = data.attributes.turn_rotation,
         toggle_prompt = data.children.toggle_prompt,
         instance = data.instance,
+        connections = {},
     }
     return setmetatable(door, door_mt)
 end

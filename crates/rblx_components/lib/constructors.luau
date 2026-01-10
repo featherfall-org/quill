@@ -57,13 +57,7 @@ export type function TypeOfKind(kind: type): type
 end
 
 export type function ComponentInfo(t: type): type
-    local function infoassert(condition: boolean, msg: string)
-        if not condition then
-            print(msg)
-        end
-    end
-
-    infoassert(t:is("table"), "`t` isn't a table")
+    assert(t:is("table"), "`t` isn't a table")
 
     local props = t:properties()
 
@@ -91,14 +85,14 @@ export type function ComponentInfo(t: type): type
         prop: type
     ): type
         local found = optionalprop(props, prop)
-        infoassert(found ~= nil, `Prop not found: {prop:value()}`)
-        return found :: any
+        assert(found ~= nil, `Prop not found: {prop:value()}`)
+        return found
     end
 
     for key in props do
         local name = key:is("singleton") and key:value()
-        infoassert(name ~= nil, `Found non singleton key: {key}`)
-        infoassert(
+        assert(name ~= nil, `Found non singleton key: {key}`)
+        assert(
             name == "is"
                 or name == "tag"
                 or name == "attributes"
@@ -108,40 +102,38 @@ export type function ComponentInfo(t: type): type
     end
 
     local is_prop = fetchprop(props, types.singleton("is"))
-    infoassert(
+    assert(
         is_prop:is("singleton") and typeof(is_prop:value()) == "string",
         "`is` isn't a string singleton"
     )
     local tag_prop = fetchprop(props, types.singleton("tag"))
-    infoassert(
+    assert(
         tag_prop:is("singleton") and typeof(tag_prop:value()) == "string",
         "`tag` isn't a string singleton"
     )
 
     local attributes_prop = optionalprop(props, types.singleton("attributes"))
     if attributes_prop then
-        infoassert(attributes_prop:is("table"), "`attributes` isn't a table")
-        infoassert(
+        assert(attributes_prop:is("table"), "`attributes` isn't a table")
+        assert(
             attributes_prop:indexer() == nil,
             "`attributes` shouldn't have an indexer but rather be a record"
         )
         for key, rw in attributes_prop:properties() do
-            local attr_name: string = key:is("singleton") and key:value() :: any
-            infoassert(
+            local attr_name = key:is("singleton") and key:value()
+            assert(
                 attr_name and typeof(attr_name) == "string",
                 "Each key of `attributes` must be a string singleton"
             )
             local value = rw.read or rw.write
-            infoassert(
+            assert(
                 value ~= nil and value:is("table"),
                 `Expected attribute {attr_name} to be a table with metadata about it`
             )
 
-            local attr_props: { [type]: { read: type?, write: type? } } = (
-                value :: any
-            ):properties()
+            local attr_props = value:properties()
             local kind_prop = fetchprop(attr_props, types.singleton("kind"))
-            infoassert(
+            assert(
                 kind_prop ~= nil and kind_prop:is("singleton"),
                 `Expected attribute {attr_name} to have a \`kind\` key`
             )
@@ -149,7 +141,18 @@ export type function ComponentInfo(t: type): type
             local default_prop =
                 optionalprop(attr_props, types.singleton("default"))
             if default_prop then
-                infoassert(
+                if default_prop.tag == "union" then
+                    for _, component in default_prop:components() do
+                        if component == types.singleton(nil) then
+                            continue
+                        end
+
+                        default_prop = component
+                        break
+                    end
+                end
+
+                assert(
                     default_prop == expected_type,
                     `Unknown default type for attribute {attr_name}: expected {expected_type.tag} and got {default_prop.tag}`
                 )
@@ -159,22 +162,20 @@ export type function ComponentInfo(t: type): type
 
     local children_prop = optionalprop(props, types.singleton("children"))
     if children_prop then
-        infoassert(children_prop:is("table"), "`children` isn't a table")
-        infoassert(
+        assert(children_prop:is("table"), "`children` isn't a table")
+        assert(
             children_prop:indexer() == nil,
             "`children` shouldn't have an indexer but rather be a record"
         )
         for key, rw in children_prop:properties() do
-            local child_name: string = key:is("singleton")
-                and key:value() :: any
-            infoassert(
+            local child_name = key:is("singleton") and key:value()
+            assert(
                 child_name and typeof(child_name) == "string",
                 "Each key of `children` must be a string singleton"
             )
             local value = rw.read or rw.write
-            infoassert(
+            assert(
                 value ~= nil
-                    and value:is("table")
                     and value:is("singleton")
                     and typeof(value:value()) == "string",
                 `Expected child {child_name} to be a string singleton of it's class name`
@@ -257,9 +258,7 @@ type function CheckKind(kind: type): type
             or singleton == "NumberRange"
             or singleton == "Rect"
             or singleton == "Font",
-        error(
-            `Unknown attribute type: {singleton}\nExpected string, number, boolean, vector, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
-        )
+        `Unknown attribute type: {singleton}\nExpected string, number, boolean, vector, Vector2, Vector3, UDim, UDim2, BrickColor, Color3, CFrame, NumberSequence, ColorSequence, NumberRange, Rect or Font.`
     )
     return kind
 end
@@ -278,10 +277,15 @@ local function child_ctor<T>(class_name: T | keyof<rblx_types.Instances> | ""): 
     return class_name
 end
 
+local function singleton_ctor<T>(x: T | ""): T
+    return x
+end
+
 local constructors = table.freeze {
     info = info_ctor,
     attribute = attribute_ctor,
     child = child_ctor,
+    singleton = singleton_ctor,
 }
 
 return constructors
