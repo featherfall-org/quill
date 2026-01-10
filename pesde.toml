@@ -6,8 +6,6 @@ repository = "https://github.com/featherfall-org/quill"
 license = "MIT"
 private = true
 
-workspace_members = ["out/pesde/*"]
-
 [target]
 environment = "luau"
 

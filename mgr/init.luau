@@ -108,6 +108,10 @@ cmd_publish:add_flag("build", {
     help = "Whether the crates should be built prior to publishing",
     aliases = { "-b" },
 })
+cmd_publish:add_flag("dry", {
+    help = "Whether the crates should be dry published (packaged) instead of publishing",
+    aliases = { "-d" },
+})
 
 local process_args = process.args
 table.remove(process_args, 1)
@@ -208,5 +212,12 @@ elseif parsed.command == "build" or parsed.command == "publish" then
         return
     end
 
-    -- publish {crates} from {values.storage} on {targets} to {package_managers}
+    require("@self/publish") {
+        dir = root_config.crates,
+        crates = crates,
+        package_managers = package_managers,
+        targets = targets,
+        output = values.storage,
+        dry = flags.dry,
+    }
 end

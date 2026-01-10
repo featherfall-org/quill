@@ -5,6 +5,7 @@ local json = zune.serde.json
 local CrateConfig = require("@mgr/specifiers/CrateConfig")
 local RootConfig = require("@mgr/specifiers/RootConfig")
 local alias_resolver = require("@mgr/build/alias_resolver")
+local ansi = require("@mgr/util/ansi")
 local dynrequire = require("@mgr/dynrequire")
 local fs_util = require("../../util/fs")
 
@@ -16,6 +17,7 @@ export type BuiltManifest = {
     package: {
         name: string,
         version: string,
+        registry: string,
         description: string,
         license: string,
         authors: { string },
@@ -26,7 +28,7 @@ export type BuiltManifest = {
         exclude: { string },
     },
 
-    dependencies: { [string]: { name: string, version: string } },
+    dependencies: { [string]: string },
 }
 
 local function build(
@@ -60,6 +62,10 @@ local function build(
                 `Aborting build. The crate {crate} @ path {crate_path} doesn't have a config @ path {config_path}.`
             )
         end
+
+        print(
+            `{ansi.bg.yellow}{ansi.black}{ansi.bold}Building{ansi.reset} wally crate {ansi.cyan}{crate}{ansi.reset}`
+        )
 
         local config = dynrequire(config_path) :: CrateConfig.CrateConfig
         local lib_path = stdpath.join(crate_path, config.lib)
@@ -96,21 +102,24 @@ local function build(
         fs.copy(lib_path, output_lib_path)
 
         local dependencies: { [string]: string } = {}
+        local has_dependencies = false
         if config.dependencies then
             for alias, dependency in config.dependencies do
+                has_dependencies = true
                 dependencies[alias] =
                     `{dependency.wally.name}@{dependency.wally.version}`
             end
         end
         if config.workspace_dependencies then
             for crate_name in config.workspace_dependencies do
+                has_dependencies = true
                 local crate_config_path =
                     stdpath.join(dir, crate_name, "crate.luau")
                 local crate_config =
                     dynrequire(crate_config_path) :: CrateConfig.CrateConfig
 
                 dependencies[crate_name] =
-                    `{wally_config.scope}/{root_name}_{crate_config.name}@{crate_config.version}`
+                    `{wally_config.scope}/{root_name}-{crate_config.name}@{crate_config.version}`
             end
         end
 
@@ -198,8 +207,9 @@ local function build(
 
         local manifest: BuiltManifest = {
             package = {
-                name = `{wally_config.scope}/{root_name}_{config.name}`,
+                name = `{wally_config.scope}/{root_name}-{config.name}`,
                 version = config.version,
+                registry = "https://github.com/UpliftGames/wally-index",
                 description = config.description,
                 license = root_config.license,
                 authors = root_config.authors,
@@ -217,8 +227,12 @@ local function build(
                 exclude = { "**" },
             },
 
-            dependencies = {},
+            dependencies = dependencies,
         }
+
+        if not has_dependencies then
+            manifest.dependencies = nil :: any
+        end
 
         local project_file = {
             name = config.name,

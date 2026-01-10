@@ -4,12 +4,11 @@ local toml = zune.serde.toml
 local CrateConfig = require("@mgr/specifiers/CrateConfig")
 local RootConfig = require("@mgr/specifiers/RootConfig")
 local alias_resolver = require("@mgr/build/alias_resolver")
+local ansi = require("@mgr/util/ansi")
 local dynrequire = require("@mgr/dynrequire")
 local fs_util = require("../../util/fs")
 
-export type DependencySpecifier =
-    | { name: string, version: string }
-    | { workspace: string, version: string }
+export type DependencySpecifier = | { name: string, version: string }
 
 export type BuiltManifest = {
     name: string,
@@ -34,23 +33,6 @@ export type BuiltManifest = {
         [string]: DependencySpecifier,
     },
 }
-
-local function printtree(
-    root: alias_resolver.FsNode,
-    sink: BufferSink,
-    depth: number?
-)
-    depth = depth or 0
-    sink:write(
-        `{depth * 4}| {if root.kind == "file" then "📄" else "📂"} {root.name}`
-    )
-
-    if root.kind == "dir" then
-        for _, child in root.children do
-            printtree(root, sink, depth + 1)
-        end
-    end
-end
 
 local function build(
     dir: string,
@@ -102,6 +84,10 @@ local function build(
                 continue
             end
             found_target = true
+
+            print(
+                `{ansi.bg.yellow}{ansi.black}{ansi.bold}Building{ansi.reset} pesde crate {ansi.cyan}{crate}{ansi.reset} of target {ansi.red}{crate_target}{ansi.reset}`
+            )
 
             local output_path =
                 stdpath.join(output, "pesde", crate_target, crate)
@@ -169,15 +155,23 @@ local function build(
             )
 
             local dependencies: { [string]: any } = {}
+            local has_dependencies = false
             if config.dependencies then
                 for alias, dependency in config.dependencies do
+                    has_dependencies = true
                     dependencies[alias] = dependency.pesde
                 end
             end
             if config.workspace_dependencies then
                 for crate_name in config.workspace_dependencies do
+                    has_dependencies = true
+                    local crate_config_path =
+                        stdpath.join(dir, crate_name, "crate.luau")
+                    local crate_config =
+                        dynrequire(crate_config_path) :: CrateConfig.CrateConfig
                     dependencies[crate_name] = {
-                        workspace = `{pesde_config.scope}/{root_name}_{crate_name}`,
+                        name = `{pesde_config.scope}/{root_name}_{crate_config.name}`,
+                        version = crate_config.version,
                     }
                 end
             end
@@ -205,6 +199,10 @@ local function build(
 
                 dependencies = dependencies,
             }
+
+            if not has_dependencies then
+                manifest.dependencies = nil :: any
+            end
 
             local encoded_manifest = toml.encode(manifest :: any)
             fs.writeFile(
