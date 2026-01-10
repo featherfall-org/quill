@@ -31,6 +31,11 @@ export type BuiltManifest = {
     dependencies: { [string]: string },
 }
 
+local function wallyify_name(name: string): string
+    local normalized = string.gsub(name, "_", "-")
+    return normalized
+end
+
 local function build(
     dir: string,
     crates: { string },
@@ -119,7 +124,9 @@ local function build(
                     dynrequire(crate_config_path) :: CrateConfig.CrateConfig
 
                 dependencies[crate_name] =
-                    `{wally_config.scope}/{root_name}-{crate_config.name}@{crate_config.version}`
+                    `{wally_config.scope}/{root_name}-{wallyify_name(
+                        crate_config.name
+                    )}@{crate_config.version}`
             end
         end
 
@@ -207,7 +214,9 @@ local function build(
 
         local manifest: BuiltManifest = {
             package = {
-                name = `{wally_config.scope}/{root_name}-{config.name}`,
+                name = `{wally_config.scope}/{root_name}-{wallyify_name(
+                    config.name
+                )}`,
                 version = config.version,
                 registry = "https://github.com/UpliftGames/wally-index",
                 description = config.description,
