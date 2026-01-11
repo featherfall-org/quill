@@ -1,0 +1,34 @@
+name: Build Standalone
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 0 1 * *" # Artifacts expire every 90 days. Doesn't hurt to just run this workflow first day of every month at 00:10 UTC.
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Rokit
+        uses: CompeyDev/setup-rokit@v0.1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build for Distribution
+        run: |
+          zune run mgr build -p wally
+
+      - name: Build Model File
+        run: |
+          rojo build standalone.project.json -o quill.rbxm
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: quill.rbxm

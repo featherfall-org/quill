@@ -29,17 +29,19 @@ The <b>best</b> all-in-one lightweight Roblox game framework.
 
 ## 📦 Installation
 
-This package is available for [Wally](https://wally.run/package/featherfall-org/quill) and [Pesde](https://pesde.dev/packages/featherfall/quill).
+The Quill packages are available for [Wally](https://wally.run/package/featherfall-org/quill-core) and [Pesde](https://pesde.dev/packages/featherfall/quill_core).
 
 ```toml
 # wally.toml
 [dependencies]
-quill = "featherfall-org/quill@LATEST" # Replace LATEST with your desired version
+quill = "featherfall-org/quill-[CRATE]@LATEST" # Replace LATEST with your desired version & [CRATE] with your crate of choice, for example featherfall-org/quill-core
 ```
 
 ```sh
-pesde add featherfall/quill
+pesde add featherfall/quill_[CRATE] # Replace [CRATE] with your crate of choice, for example featherfall/quill_core
 ```
+
+Roblox model files (`.rbxm`s) containing all crates are also built on every push and are available [here](https://nightly.link/featherfall-org/quill/workflows/build.yml/main/quill.zip).
 
 &nbsp;
 
