@@ -3,8 +3,8 @@ local CrateConfig = require("@mgr/specifiers/CrateConfig")
 return CrateConfig {
     name = "rblx_lifecycles",
     description = "A collection of Quill lifecycles for Roblox",
-    version = "0.1.0-alpha.0",
-    lib = "lib/",
+    version = "0.1.0-alpha.1",
+    lib = "lib",
 
     targets = {
         roblox = true,

@@ -3,8 +3,8 @@ local CrateConfig = require("@mgr/specifiers/CrateConfig")
 return CrateConfig {
     name = "rblx_components",
     description = "A simple components system for Quill",
-    version = "0.1.0-alpha.1",
-    lib = "lib/",
+    version = "0.1.0-alpha.2",
+    lib = "lib",
 
     targets = {
         roblox = true,

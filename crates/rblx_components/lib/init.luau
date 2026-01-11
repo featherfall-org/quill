@@ -166,7 +166,7 @@ local function mod(debug: boolean?): core.Mod
                     for name, metadata in meta.attributes do
                         local value = instance:GetAttribute(name)
                         if not value then
-                            if metadata.default then
+                            if metadata.default ~= nil then
                                 attributes[name] = value :: any
                                     or metadata.default
                                 continue
@@ -226,7 +226,7 @@ local function mod(debug: boolean?): core.Mod
                     for name, metadata in meta.attributes do
                         local value = instance:GetAttribute(name)
                         if not value or typeof(value) ~= metadata.kind then
-                            if metadata.default then
+                            if metadata.default ~= nil then
                                 attributes[name] = value :: any
                                     or metadata.default
                                 continue

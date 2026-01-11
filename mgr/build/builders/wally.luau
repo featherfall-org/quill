@@ -229,7 +229,7 @@ local function build(
                 repository = root_config.repository,
                 include = {
                     config.lib,
-                    `{config.lib}**`,
+                    `{config.lib}/**`,
                     "LICENSE",
                     "wally.toml",
                     "README.md",

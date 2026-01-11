@@ -185,11 +185,17 @@ local function build(
                 license = root_config.license,
                 authors = root_config.authors,
                 repository = root_config.repository,
-                includes = { config.lib, "LICENSE", "pesde.toml", "README.md" },
+                includes = {
+                    config.lib,
+                    `{config.lib}/**`,
+                    "LICENSE",
+                    "pesde.toml",
+                    "README.md",
+                },
 
                 target = {
                     environment = crate_target,
-                    lib = `{config.lib}init.luau`,
+                    lib = `{config.lib}/init.luau`,
                     build_files = if crate_target == "roblox"
                         then { config.lib }
                         else nil,
