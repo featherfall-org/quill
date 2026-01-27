@@ -57,6 +57,7 @@ end
 type Singleton = core.Singleton
 export type SortingMethod = | "topological" | "priority"
 local function mod(sorting_method: SortingMethod?): core.Mod
+    sorting_method = sorting_method or "topological"
     local dependencies_matrix: AdjacencyMatrix<Singleton> = {}
     local to_inject: { [Singleton]: { [string]: Singleton } } = {}
     local function lifecycle_hook(
@@ -71,7 +72,7 @@ local function mod(sorting_method: SortingMethod?): core.Mod
         local dependencies_map = {}
         for name, value in singleton do
             if
-                type(value) == "table"
+                type(value) ~= "table"
                 or value.UNINITIALIZED_DEPENDENCY ~= true
             then
                 continue
