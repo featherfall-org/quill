@@ -4,12 +4,14 @@ local function use<T>(singleton: T): T
     return { UNINITIALIZED_DEPENDENCY = true, singleton = singleton } :: any
 end
 
-type AdjacencyMatrix<T> = { [T]: { T } }
---- Kahn's algorithm for topological sorting of adjacency matrices
-local function toposort<T>(graph: AdjacencyMatrix<T>): { T }
+type AdjacencyList<T> = { [T]: { T } }
+--- Kahn's algorithm for topological sorting of adjacency lists
+local function toposort<T>(graph: AdjacencyList<T>): { T }
     local in_degree: { [T]: number } = {}
     for node, neighbors in graph do
-        in_degree[node] = 0
+        if not in_degree[node] then
+            in_degree[node] = 0
+        end
 
         for _, neighbor in neighbors do
             if not in_degree[neighbor] then
@@ -58,7 +60,7 @@ type Singleton = core.Singleton
 export type SortingMethod = | "topological" | "priority"
 local function mod(sorting_method: SortingMethod?): core.Mod
     sorting_method = sorting_method or "topological"
-    local dependencies_matrix: AdjacencyMatrix<Singleton> = {}
+    local dependencies_list: AdjacencyList<Singleton> = {}
     local to_inject: { [Singleton]: { [string]: Singleton } } = {}
     local function lifecycle_hook(
         lifecycle: core.Lifecycle,
@@ -81,7 +83,7 @@ local function mod(sorting_method: SortingMethod?): core.Mod
             table.insert(dependencies :: any, value.singleton)
             dependencies_map[name] = value.singleton
         end
-        dependencies_matrix[singleton] = dependencies
+        dependencies_list[singleton] = dependencies
         to_inject[singleton] = dependencies_map
     end
 
@@ -90,7 +92,7 @@ local function mod(sorting_method: SortingMethod?): core.Mod
             if sorting_method == "priority" then
                 priority_sort(singletons)
             elseif sorting_method == "topological" then
-                local sorted = toposort(dependencies_matrix)
+                local sorted = toposort(dependencies_list)
                 table.clear(singletons)
                 for idx = #sorted, 1, -1 do
                     table.insert(singletons, sorted[idx])
