@@ -1,3 +1,4 @@
+local pretty_print = require("@self/pretty_print")
 export type Level = "trace" | "debug" | "info" | "warn" | "error" | "fatal"
 export type Event = {
     timestamp: number,
@@ -170,33 +171,57 @@ function Logger.fatal(
     self:event("fatal", message, context)
 end
 
+local function is_table_empty<T>(tbl: T & {}): boolean
+    for _ in tbl :: any do
+        return false
+    end
+    return true
+end
+
 local function console_subscriber(event: Event)
-    if LEVELS[event.level] < 4 then
-        print(
-            `{event.logger} - {event.level}} @ {event.timestamp}:\n{event.message}`
-        )
-    elseif LEVELS[event.level] < 6 then
-        warn(
-            `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}`
-        )
+    local message =
+        `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}`
+
+    local level = LEVELS[event.level]
+    if level < 4 then
+        print(message)
+    elseif level < 6 then
+        warn(message)
     else
-        error(`{event.logger} - fatal @ {event.timestamp}:\n{event.message}`)
+        error(message)
     end
 end
 
 local function traceback_subscriber(event: Event)
-    local traceback = debug.traceback(nil, 4)
+    local traceback = debug.traceback(nil, 5)
+    local message =
+        `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{traceback}`
 
-    if LEVELS[event.level] < 4 then
-        print(
-            `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{traceback}`
-        )
-    elseif LEVELS[event.level] < 6 then
-        warn(
-            `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{traceback}`
-        )
+    local level = LEVELS[event.level]
+    if level < 4 then
+        print(message)
+    elseif level < 6 then
+        warn(message)
     else
-        error(`{event.logger} - fatal @ {event.timestamp}:\n{event.message}`)
+        error(message)
+    end
+end
+
+local function context_subscriber(event: Event)
+    local traceback = debug.traceback(nil, 5)
+    local message = if event.context and not is_table_empty(event.context)
+        then `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{pretty_print(
+            event.context
+        )}\n{traceback}`
+        else `{event.logger} - {event.level} @ {event.timestamp}:\n{event.message}\n{traceback}`
+
+    local level = LEVELS[event.level]
+    if level < 4 then
+        print(message)
+    elseif level < 6 then
+        warn(message)
+    else
+        error(message)
     end
 end
 
@@ -206,6 +231,7 @@ local logger = table.freeze {
 
     console_subscriber = console_subscriber,
     traceback_subscriber = traceback_subscriber,
+    context_subscriebr = context_subscriber,
 }
 
 return logger
