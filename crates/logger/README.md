@@ -65,7 +65,7 @@ logger:debug("This is a debug message!", my_additional_ctx)
 -- and so on...
 ```
 
-The crate exposes two subscribers by default:
+The crate exposes three subscribers by default:
 - `console_subscriber`, which outputs all events to the console in the format of:
   ```
   {event.logger} - {event.level} @ {event.timestamp}:
@@ -73,6 +73,7 @@ The crate exposes two subscribers by default:
   ```
   while also erroring for any fatal events
 - `traceback_subscriber`, which has the same behaviour as `console_subscriber`, while additionally outputting stack traces
+- `context_subscriber`, which has the same behaviour as `traceback_subscriber`, while additionally outputting event context
 
 You may set a global log level for each logger with `.set_log_level()`, as mentioned earlier, which stops subscribers from listening to any events which aren't at least of that log level.<br>
 For example, to only output warn events and above, you'd do:
