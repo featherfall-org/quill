@@ -20,7 +20,7 @@ function HomepageHeader() {
         />
 
         <div className={styles.badge}>
-          Strictly Typed • Roblox-First • Zero Bloat
+          Strictly Typed • Built for Luau • Zero Bloat
         </div>
 
         <Heading as="h1" className="hero__title">

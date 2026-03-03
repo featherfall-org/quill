@@ -8,7 +8,7 @@ import darkCodeTheme from "./themes/dark";
 
 const config: Config = {
   title: "Quill",
-  tagline: "A fully and strictly typed framework for Roblox",
+  tagline: "A fully and strictly typed framework for Luau",
   favicon: "img/quill-favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
