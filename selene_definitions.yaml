@@ -1,6 +1,0 @@
-base: roblox
-name: selene_definitions
-globals:
-  require:
-    args:
-      - type: string
