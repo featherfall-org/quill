@@ -1,13 +1,15 @@
-import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+
+import lightCodeTheme from "./themes/light";
+import darkCodeTheme from "./themes/dark";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
   title: "Quill",
   tagline: "A fully and strictly typed framework for Roblox",
-  favicon: "img/favicon.ico",
+  favicon: "img/quill-favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -42,17 +44,6 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.ts",
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ["rss", "atom"],
-            xslt: true,
-          },
-          // Useful options to enforce blogging best practices
-          onInlineTags: "warn",
-          onInlineAuthors: "warn",
-          onUntruncatedBlogPosts: "warn",
-        },
         theme: {
           customCss: "./src/css/custom.css",
         },
@@ -62,28 +53,28 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: "img/docusaurus-social-card.jpg",
+    image: "img/quill-logo.png",
     colorMode: {
-      respectPrefersColorScheme: true,
+      respectPrefersColorScheme: false, // Default true
     },
     navbar: {
-      title: "My Site",
+      title: "Quill",
       logo: {
-        alt: "My Site Logo",
-        src: "img/logo.svg",
+        alt: "Quill Logo",
+        src: "img/quill-logo.png",
       },
       items: [
         {
           type: "docSidebar",
-          sidebarId: "tutorialSidebar",
+          sidebarId: "learnSidebar",
           position: "left",
-          label: "Tutorial",
+          label: "Learn",
         },
-        { to: "/blog", label: "Blog", position: "left" },
         {
-          href: "https://github.com/facebook/docusaurus",
-          label: "GitHub",
+          href: "https://github.com/featherfall-org/quill",
           position: "right",
+          className: "header-github-link",
+          "aria-label": "Github repository",
         },
       ],
     },
@@ -91,11 +82,15 @@ const config: Config = {
       style: "dark",
       links: [
         {
-          title: "Docs",
+          title: "Learn",
           items: [
             {
-              label: "Tutorial",
-              to: "/docs/intro",
+              label: "Quick Start",
+              to: "/docs",
+            },
+            {
+              label: "Installation",
+              to: "/docs/quick-start/installation",
             },
           ],
         },
@@ -103,16 +98,8 @@ const config: Config = {
           title: "Community",
           items: [
             {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/docusaurus",
-            },
-            {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus",
-            },
-            {
-              label: "X",
-              href: "https://x.com/docusaurus",
+              label: "Roblox OSS Community",
+              href: "https://discord.gg/Bcyh8kmRYe",
             },
           ],
         },
@@ -120,21 +107,29 @@ const config: Config = {
           title: "More",
           items: [
             {
-              label: "Blog",
-              to: "/blog",
-            },
-            {
               label: "GitHub",
-              href: "https://github.com/facebook/docusaurus",
+              href: "https://github.com/featherfall-org/quill",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Featherfall`,
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: lightCodeTheme,
+      darkTheme: darkCodeTheme,
+      additionalLanguages: ["typescript", "lua", "bash", "toml"],
+      magicComments: [
+        {
+          className: "theme-code-block-highlighted-line",
+          line: "highlight-next-line",
+          block: { start: "highlight-start", end: "highlight-end" },
+        },
+        {
+          className: "code-block-error-line",
+          line: "error-next-line",
+        },
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };
