@@ -22,8 +22,8 @@ function HomepageHeader() {
           {siteConfig.title}
         </Heading>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link className="button button--secondary button--lg" to="/docs">
+        <div>
+          <Link className={styles.liquidBtns} to="/docs">
             Get Started
           </Link>
         </div>
@@ -31,6 +31,7 @@ function HomepageHeader() {
     </header>
   );
 }
+// ^ button button--secondary button--lg
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
