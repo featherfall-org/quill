@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Quill</ShortName>
+  <Description>Search Quill</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">https://featherfall-org.github.io/quill/img/quill-favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://featherfall-org.github.io/quill/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://featherfall-org.github.io/quill/opensearch.xml" />
+  <moz:SearchForm>https://featherfall-org.github.io/quill/</moz:SearchForm>
+</OpenSearchDescription>
