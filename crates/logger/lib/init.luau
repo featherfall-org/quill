@@ -231,7 +231,7 @@ local logger = table.freeze {
 
     console_subscriber = console_subscriber,
     traceback_subscriber = traceback_subscriber,
-    context_subscriebr = context_subscriber,
+    context_subscriber = context_subscriber,
 }
 
 return logger
