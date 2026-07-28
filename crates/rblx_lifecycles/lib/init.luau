@@ -29,7 +29,7 @@ local function mod(): core.Mod
         end
 
         for name, event: RBXScriptSignal in lifecycles_table do
-            local fn = singleton[name]
+            local fn: ((any, ...any) -> ())? = singleton[name]
             if not fn then
                 continue
             end
@@ -43,7 +43,11 @@ local function mod(): core.Mod
                 continue
             end
 
-            event:Connect(fn)
+            local function update(...: any)
+                fn(singleton, ...)
+            end
+
+            event:Connect(update)
         end
     end
 
