@@ -15,6 +15,23 @@ local SERVER_LIFECYCLES = {
     on_pre_simulation = RunService.PreSimulation,
 }
 
+type ConnectFn = (any, (...any) -> ...any) -> any
+type SignalLike =
+    ({ Connect: ConnectFn } & { connect: ConnectFn })
+    | RBXScriptSignal
+
+local function safe_connect(event: SignalLike, fn: (...any) -> ())
+    const connect: ConnectFn = event.Connect or event.connect
+
+    if typeof(connect) == "function" then
+        connect(event, fn)
+
+        return true
+    end
+
+    return false
+end
+
 local function mod(): core.Mod
     local lifecycles_table = if RunService:IsServer()
         then SERVER_LIFECYCLES
@@ -28,7 +45,7 @@ local function mod(): core.Mod
             return
         end
 
-        for name, event: RBXScriptSignal in lifecycles_table do
+        for name, event: SignalLike in lifecycles_table do
             local fn: ((any, ...any) -> ())? = singleton[name]
             if not fn then
                 continue
@@ -47,7 +64,15 @@ local function mod(): core.Mod
                 fn(singleton, ...)
             end
 
-            event:Connect(update)
+            local success = safe_connect(event, update)
+
+            if not success then
+                warn(
+                    `Failed to connect lifecycle {name} for singleton {singleton}. Expected an RBXScriptSignal or signal-like object with a Connect/connect method, got {typeof(
+                        event
+                    )}.`
+                )
+            end
         end
     end
 
@@ -58,13 +83,13 @@ end
 
 --- Implements a lifecycle for the client.\
 --- Make sure this is called prior to modules being initialized.
-local function implement_client_lifecycle(name: string, event: RBXScriptSignal)
+local function implement_client_lifecycle(name: string, event: SignalLike)
     CLIENT_LIFECYCLES[name] = event
 end
 
 --- Implements a lifecycle for the server.\
 --- Make sure this is called prior to modules being initialized.
-local function implement_server_lifecycle(name: string, event: RBXScriptSignal)
+local function implement_server_lifecycle(name: string, event: SignalLike)
     SERVER_LIFECYCLES[name] = event
 end
 
