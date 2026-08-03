@@ -60,3 +60,5 @@ Quill is licensed under the [MIT License](LICENSE).
 ## ⚒️ Contributing
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in Quill by you, shall be licensed as MIT, without any additional terms or conditions.
+
+Any contribution of any LLM-generated content will be rejected and result in an immediate ban for the contributor, without recourse.
