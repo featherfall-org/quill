@@ -142,19 +142,19 @@ function Quill.with_mod(self: Identity, mod: Mod): Identity
     return self
 end
 
-function Quill.run_async(self: Identity, name: string, ...: any)
+function Quill.run_async(self: Identity, name: string, ...: any): Identity
     call_singletons(self.singletons, nil, name, ...)
 
     return self
 end
 
-function Quill.run(self: Identity, name: string, ...: any)
+function Quill.run(self: Identity, name: string, ...: any): Identity
     call_singletons(self.singletons, task.spawn, name, ...)
 
     return self
 end
 
-function Quill.run_deferred(self: Identity, name: string, ...: any)
+function Quill.run_deferred(self: Identity, name: string, ...: any): Identity
     call_singletons(self.singletons, task.defer, name, ...)
 
     return self
