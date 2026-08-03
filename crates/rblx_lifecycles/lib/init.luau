@@ -21,7 +21,7 @@ type SignalLike =
     | RBXScriptSignal
 
 local function safe_connect(event: SignalLike, fn: (...any) -> ())
-    local connect: ConnectFn = event.Connect or event.connect
+    const connect: ConnectFn = event.Connect or event.connect
 
     if typeof(connect) == "function" then
         connect(event, fn)
