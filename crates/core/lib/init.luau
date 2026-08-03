@@ -144,14 +144,20 @@ end
 
 function Quill.run_async(self: Identity, name: string, ...: any)
     call_singletons(self.singletons, nil, name, ...)
+
+    return self
 end
 
 function Quill.run(self: Identity, name: string, ...: any)
     call_singletons(self.singletons, task.spawn, name, ...)
+
+    return self
 end
 
 function Quill.run_deferred(self: Identity, name: string, ...: any)
     call_singletons(self.singletons, task.defer, name, ...)
+
+    return self
 end
 
 function Quill.write(self: Identity)
