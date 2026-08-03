@@ -87,6 +87,25 @@ local function call_phase_hooks(
     call_closures(hooks, phase, singletons)
 end
 
+local function call_singletons(
+    singletons: { Singleton },
+    scheduler: ((...any) -> ())?,
+    name: string,
+    ...
+)
+    for _, singleton in singletons do
+        local fn: ((...any) -> ())? = singleton[name]
+
+        if typeof(fn) == "function" then
+            if scheduler then
+                scheduler(fn, singleton, ...)
+            else
+                fn(singleton, ...)
+            end
+        end
+    end
+end
+
 function Quill.with_singleton(self: Identity, singleton: Singleton): Identity
     table.insert(self.singletons, singleton)
     call_lifecycle_hooks(self.lifecycle_hooks, "injected", singleton)
@@ -121,6 +140,18 @@ function Quill.with_mod(self: Identity, mod: Mod): Identity
     end
 
     return self
+end
+
+function Quill.run_async(self: Identity, name: string, ...: any)
+    call_singletons(self.singletons, nil, name, ...)
+end
+
+function Quill.run(self: Identity, name: string, ...: any)
+    call_singletons(self.singletons, task.spawn, name, ...)
+end
+
+function Quill.run_deferred(self: Identity, name: string, ...: any)
+    call_singletons(self.singletons, task.defer, name, ...)
 end
 
 function Quill.write(self: Identity)
